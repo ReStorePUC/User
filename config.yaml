@@ -1,0 +1,13 @@
+# Kong Reference
+kong:
+  host: "http://127.0.0.1:8001"
+  consumer_request: "/consumers/"
+  jwt_request: "/consumers/%s/jwt"
+
+#Mysql
+mysql:
+  host: localhost
+  port: 3306
+  user: root
+  password:
+  database: userdb
