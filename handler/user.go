@@ -16,6 +16,7 @@ type controller interface {
 	GetStore(ctx context.Context, id string) (*entity.Store, error)
 	SearchStore(ctx context.Context, name string) ([]entity.Store, error)
 	UpdateProfile(ctx context.Context, id string, profile *entity.Profile) error
+	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 }
 
 type User struct {

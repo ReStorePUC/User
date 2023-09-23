@@ -326,6 +326,10 @@ func (u *User) UpdateProfile(ctx context.Context, id string, profile *entity.Pro
 	return nil
 }
 
+func (u *User) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
+	return u.repo.GetUserByEmail(ctx, email)
+}
+
 func (u *User) validate(ctx context.Context, user *entity.User) (bool, error) {
 	result, err := u.repo.GetUserByEmail(ctx, user.Email)
 	if err != nil {
