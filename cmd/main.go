@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "github.com/ReStorePUC/protobucket/generated"
+	pb "github.com/ReStorePUC/protobucket/user"
 	"github.com/gin-gonic/gin"
 	"github.com/restore/user/config"
 	"github.com/restore/user/controller"
@@ -58,5 +58,5 @@ func main() {
 	router.GET("/private/profile/:id", uHandler.GetProfile)
 	router.PUT("/private/profile/:id", uHandler.UpdateProfile)
 
-	router.Run(":8080")
+	router.Run(":8081")
 }

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	pb "github.com/ReStorePUC/protobucket/generated"
+	pb "github.com/ReStorePUC/protobucket/user"
 	"strconv"
 )
 
