@@ -58,5 +58,5 @@ func main() {
 	router.GET("/private/profile/:id", uHandler.GetProfile)
 	router.PUT("/private/profile/:id", uHandler.UpdateProfile)
 
-	router.Run(":8081")
+	router.Run(":8080")
 }
