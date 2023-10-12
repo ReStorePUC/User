@@ -89,3 +89,37 @@ func (u *User) UpdateProfile(ctx context.Context, id int, profile *entity.Profil
 	}
 	return nil
 }
+
+func (u *User) GetUserStore(ctx context.Context, email string) (*entity.Store, error) {
+	store := entity.Store{}
+	user := entity.User{}
+
+	res := u.db.Where("email = ?", email).First(&user)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	res = u.db.Where("user_id = ?", user.ID).First(&store)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &store, nil
+}
+
+func (u *User) GetUserProfile(ctx context.Context, email string) (*entity.Profile, error) {
+	profile := entity.Profile{}
+	user := entity.User{}
+
+	res := u.db.Where("email = ?", email).First(&user)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	res = u.db.Where("user_id = ?", user.ID).First(&profile)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &profile, nil
+}

@@ -17,6 +17,8 @@ type controller interface {
 	SearchStore(ctx context.Context, name string) ([]entity.Store, error)
 	UpdateProfile(ctx context.Context, id string, profile *entity.Profile) error
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
+	GetSelfProfile(ctx context.Context) (*entity.Profile, error)
+	GetSelfStore(ctx context.Context) (*entity.Store, error)
 }
 
 type User struct {
@@ -176,19 +178,24 @@ func (u *User) GetStore(c *gin.Context) {
 
 // SearchStore search a Store.
 func (u *User) SearchStore(c *gin.Context) {
-	ctx := context.WithValue(c.Request.Context(), config.EmailHeader, c.GetHeader(config.EmailHeader))
-
 	name := c.Param("name")
-	if name == "" {
+	result, err := u.controller.SearchStore(c.Request.Context(), name)
+	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, struct {
 			Error string
 		}{
-			"invalid name",
+			err.Error(),
 		})
 		return
 	}
 
-	result, err := u.controller.SearchStore(ctx, name)
+	c.IndentedJSON(http.StatusCreated, result)
+}
+
+// SearchAdminStore search a Store.
+func (u *User) SearchAdminStore(c *gin.Context) {
+	name := c.Query("name")
+	result, err := u.controller.SearchStore(c.Request.Context(), name)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, struct {
 			Error string
@@ -236,4 +243,38 @@ func (u *User) UpdateProfile(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusCreated, profile)
+}
+
+// GetSelfProfile finds the user Profile.
+func (u *User) GetSelfProfile(c *gin.Context) {
+	ctx := context.WithValue(c.Request.Context(), config.EmailHeader, c.GetHeader(config.EmailHeader))
+
+	result, err := u.controller.GetSelfProfile(ctx)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, struct {
+			Error string
+		}{
+			err.Error(),
+		})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, result)
+}
+
+// GetSelfStore finds the user Store.
+func (u *User) GetSelfStore(c *gin.Context) {
+	ctx := context.WithValue(c.Request.Context(), config.EmailHeader, c.GetHeader(config.EmailHeader))
+
+	result, err := u.controller.GetSelfStore(ctx)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, struct {
+			Error string
+		}{
+			err.Error(),
+		})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, result)
 }

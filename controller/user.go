@@ -19,6 +19,8 @@ type repository interface {
 	GetStoreByID(ctx context.Context, id int) (*entity.Store, error)
 	SearchStore(ctx context.Context, name string) ([]entity.Store, error)
 	UpdateProfile(ctx context.Context, id int, profile *entity.Profile) error
+	GetUserStore(ctx context.Context, email string) (*entity.Store, error)
+	GetUserProfile(ctx context.Context, email string) (*entity.Profile, error)
 }
 
 type kong interface {
@@ -217,22 +219,6 @@ func (u *User) GetProfile(ctx context.Context, id string) (*entity.Profile, erro
 func (u *User) GetStore(ctx context.Context, id string) (*entity.Store, error) {
 	log := zap.NewNop()
 
-	admin := ctx.Value(config.EmailHeader)
-	result, err := u.repo.GetUserByEmail(ctx, admin.(string))
-	if err != nil {
-		log.Error(
-			"error getting admin",
-			zap.Error(err),
-		)
-		return nil, err
-	}
-	if !result.IsAdmin {
-		log.Error(
-			"unauthorized action",
-		)
-		return nil, errors.New("unauthorized action")
-	}
-
 	storeID, err := strconv.Atoi(id)
 	if err != nil {
 		log.Error(
@@ -258,22 +244,6 @@ func (u *User) GetStore(ctx context.Context, id string) (*entity.Store, error) {
 func (u *User) SearchStore(ctx context.Context, name string) ([]entity.Store, error) {
 	log := zap.NewNop()
 
-	admin := ctx.Value(config.EmailHeader)
-	result, err := u.repo.GetUserByEmail(ctx, admin.(string))
-	if err != nil {
-		log.Error(
-			"error getting admin",
-			zap.Error(err),
-		)
-		return nil, err
-	}
-	if !result.IsAdmin {
-		log.Error(
-			"unauthorized action",
-		)
-		return nil, errors.New("unauthorized action")
-	}
-
 	stores, err := u.repo.SearchStore(ctx, name)
 	if err != nil {
 		log.Error(
@@ -288,22 +258,6 @@ func (u *User) SearchStore(ctx context.Context, name string) ([]entity.Store, er
 
 func (u *User) UpdateProfile(ctx context.Context, id string, profile *entity.Profile) error {
 	log := zap.NewNop()
-
-	admin := ctx.Value(config.EmailHeader)
-	result, err := u.repo.GetUserByEmail(ctx, admin.(string))
-	if err != nil {
-		log.Error(
-			"error getting admin",
-			zap.Error(err),
-		)
-		return err
-	}
-	if !result.IsAdmin {
-		log.Error(
-			"unauthorized action",
-		)
-		return errors.New("unauthorized action")
-	}
 
 	profileID, err := strconv.Atoi(id)
 	if err != nil {
@@ -324,6 +278,38 @@ func (u *User) UpdateProfile(ctx context.Context, id string, profile *entity.Pro
 	}
 
 	return nil
+}
+
+func (u *User) GetSelfStore(ctx context.Context) (*entity.Store, error) {
+	log := zap.NewNop()
+
+	email := ctx.Value(config.EmailHeader)
+	result, err := u.repo.GetUserStore(ctx, email.(string))
+	if err != nil {
+		log.Error(
+			"error getting store",
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (u *User) GetSelfProfile(ctx context.Context) (*entity.Profile, error) {
+	log := zap.NewNop()
+
+	email := ctx.Value(config.EmailHeader)
+	result, err := u.repo.GetUserProfile(ctx, email.(string))
+	if err != nil {
+		log.Error(
+			"error getting profile",
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (u *User) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	pb "github.com/ReStorePUC/protobucket/user"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/restore/user/config"
 	"github.com/restore/user/controller"
@@ -45,18 +46,30 @@ func main() {
 
 	// HTTP
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: true,
+		AllowFiles:       true,
+	}))
+
 	router.POST("/profile", uHandler.Register)
 	router.POST("/login", uHandler.Login)
 
 	router.POST("/file", fHandler.UploadFile)
-	router.GET("/file/:file", fHandler.GetFile)
+	router.Static("/view-file/", "./uploads")
 	router.DELETE("/file/:file", fHandler.DeleteFile)
+	router.GET("/store/search/:name", uHandler.SearchStore)
+	router.GET("/store/admin/search", uHandler.SearchAdminStore)
 
 	router.POST("/private/store", uHandler.RegisterStore)
-	router.GET("/private/store/:id", uHandler.GetStore)
-	router.GET("/private/store/search/:name", uHandler.SearchStore)
+	router.GET("/store/:id", uHandler.GetStore)
 	router.GET("/private/profile/:id", uHandler.GetProfile)
 	router.PUT("/private/profile/:id", uHandler.UpdateProfile)
+
+	router.GET("/private/self/store", uHandler.GetSelfStore)
+	router.GET("/private/self/profile", uHandler.GetSelfProfile)
 
 	router.Run(":8080")
 }

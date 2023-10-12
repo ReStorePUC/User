@@ -4,11 +4,14 @@ services:
   user:
     image: restore/user:latest
     deploy:
-      replicas: 1
+      replicas: 3
     networks:
       main:
         aliases:
           - user
+    depends_on:
+      - db
+
 networks:
   main:
     external: true
